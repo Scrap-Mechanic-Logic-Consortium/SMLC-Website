@@ -15,8 +15,9 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'Scrap-Mechanic-Logic-Consortium', // Usually your GitHub org/user name.
-  projectName: 'SMLC-Website', // Usually your repo name.
+  organizationName: 'Scrap-Mechanic-Logic-Consortium',
+  projectName: 'SMLC-Website',
+  deploymentBranch: 'gh-pages',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -59,8 +60,7 @@ const config: Config = {
   ],
 
   themeConfig: {
-    // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/smlc-social-card.png',
     navbar: {
       title: 'SMLC',
       logo: {
