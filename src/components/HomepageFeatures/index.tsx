@@ -4,14 +4,14 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  img_path: string;
+  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
   description: JSX.Element;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     title: 'Standardization',
-    img_path: require('@site/static/img/logo.png').default,
+    Svg: require('@site/static/img/puzzle_pieces.svg').default,
     description: (
       <>
         We establish standards for logic creations, promoting compatibility across different designs. Our standards include clear documentation and examples.
@@ -20,7 +20,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Compilation',
-    img_path: require('@site/static/img/logo.png').default,
+    Svg: require('@site/static/img/clipboard.svg').default,
     description: (
       <>
         We compile a searchable database of standard-compliant logic creations, providing clear definitions for common terms to aid in discovery.
@@ -29,7 +29,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Evaluation',
-    img_path: require('@site/static/img/logo.png').default,
+    Svg: require('@site/static/img/stopwatch.svg').default,
     description: (
       <>
         We provide independent testing and evaluation of logic creations (speed, size, etc.). Our tools and instructions empower everyone to verify our results.
@@ -38,11 +38,11 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
-function Feature({ title, img_path: Img, description }: FeatureItem) {
+function Feature({ title, Svg, description }: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
-        <img src={Img} alt={title} />
+        <Svg className={styles.featureSvg} role="img" />
       </div>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
