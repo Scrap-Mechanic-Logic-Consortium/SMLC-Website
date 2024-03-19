@@ -96,18 +96,28 @@ function insertTermHyperlinks(terms, path = repoTempFolder + 'SMLC-Standards/sta
             }
             continue;
         }
-        const content = fs.readFileSync(path + file, 'utf-8');
-        let newContent = content;
+        let content = fs.readFileSync(path + file, 'utf-8');
+        let madeChanges = false;
+        let newContent = "";
         // find FIRST instance of term in file (if it exists) and replace it with a hyperlink
-        for (const term in terms) {
-            if (newContent.includes(term)) {
-                let termLink = `[${term}](` + terms[term].file + ")";
-                // replace first instance of term with hyperlink
-                splitContent = newContent.split(term);
-                newContent = splitContent[0] + termLink + splitContent.slice(1).join(term);
+        let accumulator = "";
+        for (let i = 0; i < content.length; i++) {
+            accumulator += content[i];
+            // if accumulator.lower ends with a term, cut out the term and replace it with a hyperlink, then reset accumulator
+            for (const term in terms) {
+                if (accumulator.toLocaleLowerCase().endsWith(term)) {
+                    const termWithCase = accumulator.slice(-term.length);
+                    const link = `[${termWithCase}](${terms[term].file})`;
+                    newContent += content.slice(0, i - term.length + 1) + link;
+                    content = content.slice(i);
+                    i = 0;
+                    accumulator = "";
+                    madeChanges = true;
+                }
             }
         }
-        if (newContent !== content) {
+        newContent += accumulator;
+        if (madeChanges) {
             fs.writeFileSync(path + file, newContent);
             console.log('Inserted term hyperlinks into ' + file);
         }
