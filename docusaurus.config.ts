@@ -57,6 +57,19 @@ const config: Config = {
         sidebarPath: require.resolve('./sidebars.js'),
       },
     ],
+    [
+      'docusaurus-lunr-search',
+      {
+        excludeRoutes: [
+          '/docs/thisHasToBeHereBecauseDocusaurusIsSpecial'
+        ],
+      }
+    ],
+    // [
+    //   '@aldridged/docusaurus-plugin-lunr',
+    //   {
+    //   },
+    // ]
   ],
 
   themeConfig: {
