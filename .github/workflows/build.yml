@@ -15,4 +15,6 @@ jobs:
         - run: npm run deploy
           env:
             GIT_USER: niknal357
+            GIT_USER_EMAIL: consortibot@sm-lc.com
+            GIT_USER_NAME: consortibot
             GIT_PASS: ${{ secrets.DEPLOY_TOKEN }}
