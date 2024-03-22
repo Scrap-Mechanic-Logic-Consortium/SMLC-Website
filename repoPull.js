@@ -25,8 +25,8 @@ async function cloneRepo(repoDef, targetFolder) {
     // },
     try {
         child_process.execSync(`git clone ${repoDef.repo} ${repoTempFolder + targetFolder}`);
-        child_process.execSync(`git -C ${repoTempFolder + repoDef.folder} checkout ${repoDef.branch}`);
-        child_process.execSync(`git -C ${repoTempFolder + repoDef.folder} checkout ${repoDef.commit}`);
+        child_process.execSync(`git -C ${repoTempFolder + targetFolder} checkout ${repoDef.branch}`);
+        child_process.execSync(`git -C ${repoTempFolder + targetFolder} checkout ${repoDef.commit}`);
         console.log(`Repository cloned: ${repoDef.repo} branch: ${repoDef.branch} commit: ${repoDef.commit}`);
     } catch (error) {
         console.error(`Error cloning ${repoDef.repo} branch: ${repoDef.branch} commit: ${repoDef.commit}`, error);
