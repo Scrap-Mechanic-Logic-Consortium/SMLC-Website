@@ -3,7 +3,7 @@ const child_process = require('child_process');
 
 const repoTempFolder = 'repoTemp/';
 // read gitRepos.json
-const gitRepos = JSON.parse(fs.readFileSync('gitRepos.json', 'utf-8'));
+let gitRepos = JSON.parse(fs.readFileSync('gitRepos.json', 'utf-8'));
 
 async function deleteAndRecreateRepoTemp() {
     try {
@@ -62,6 +62,7 @@ function detectDefinedTerms(path, sitePath) {
                 const linkName = file.split('.')[0];
                 terms[segments[i].toLocaleLowerCase()] = {
                     file: sitePath + linkName,
+                    pathFile: path + file,
                     excerpt: null,
                 }
             }
@@ -105,18 +106,41 @@ function insertTermHyperlinks(terms, path, sitePath) {
         let newContent = "";
         // find FIRST instance of term in file (if it exists) and replace it with a hyperlink
         let accumulator = "";
+        const nogoSeqs = { // contains pairs of character sequences. the first one is the sequence that deactivates hyperlink insertion, the second one is the sequence that reactivates it
+            "#": ["\n"],
+            "[": ["]", "\n"],
+            "(/": [")", "\n"],
+            "(/http": [")", "\n"],
+            "`": ["`", "\n"],
+        };
+        let awaitingEndSequence = null;
         for (let i = 0; i < content.length; i++) {
             accumulator += content[i];
-            // if accumulator.lower ends with a term, cut out the term and replace it with a hyperlink, then reset accumulator
-            for (const term in terms) {
-                if (accumulator.toLocaleLowerCase().endsWith(term)) {
-                    const termWithCase = accumulator.slice(-term.length);
-                    const link = `[${termWithCase}](${terms[term].file})`;
-                    newContent += content.slice(0, i - term.length + 1) + link;
-                    content = content.slice(i);
-                    i = 0;
-                    accumulator = "";
-                    madeChanges = true;
+            // check if accumulator ends with a sequence that deactivates hyperlink insertion
+            for (const seq in nogoSeqs) {
+                if (accumulator.endsWith(seq)) {
+                    awaitingEndSequence = nogoSeqs[seq];
+                }
+            }
+            // check if accumulator ends with a sequence that reactivates hyperlink insertion
+            if (awaitingEndSequence && accumulator.endsWith(awaitingEndSequence[0])) {
+                awaitingEndSequence = null;
+            }
+            if (!awaitingEndSequence) {
+                // if accumulator.lower ends with a term, cut out the term and replace it with a hyperlink, then reset accumulator
+                for (const term in terms) {
+                    if (terms[term].pathFile === path + file) {
+                        continue;
+                    }
+                    if (accumulator.toLocaleLowerCase().endsWith(term)) {
+                        const termWithCase = accumulator.slice(-term.length);
+                        const link = `[${termWithCase}](${terms[term].file})`;
+                        newContent += content.slice(0, i - term.length) + link;
+                        content = content.slice(i);
+                        i = 0;
+                        accumulator = "";
+                        madeChanges = true;
+                    }
                 }
             }
         }
@@ -159,7 +183,7 @@ async function main() {
     terms = Object.fromEntries(Object.entries(terms).sort((a, b) => b[0].length - a[0].length));
     console.log(terms);
     for (const configData of configs) {
-        if (configData.buckets.includes('docs')) {
+        if (configData.buckets.includes('docs') || configData.buckets.includes('terms')) {
             insertTermHyperlinks(terms, repoTempFolder + configData.folder + configData.dataFolder, "/" + configData.routeBasePath + "/")
         }
     }
