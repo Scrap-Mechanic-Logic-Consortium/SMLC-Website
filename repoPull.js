@@ -151,6 +151,35 @@ function insertTermHyperlinks(terms, path, sitePath) {
         }
     }
 }
+
+function insertEmojis(emojis, path) {
+    const files = fs.readdirSync(path);
+    for (const file of files) {
+        console.log(path + file);
+        if (!file.endsWith('.md') && !file.endsWith('.markdown') && !file.endsWith('.mdx')) {
+            // check if file is a folder
+            if (fs.lstatSync(path +
+                file).isDirectory()) {
+                insertEmojis(emojis, path + file + '/');
+            }
+            continue;
+        }
+        let content = fs.readFileSync(path + file, 'utf-8');
+        let newContent = content;
+        // replace all emojis "tags" with the actual emoji, ex: :target: -> 🎯
+        for (const emoji in emojis) {
+            const emojiTag = ':' + emoji + ':';
+            const emojiChar = emojis[emoji];
+            newContent = newContent.replaceAll(emojiTag, emojiChar);
+        }
+        if (newContent !== content) {
+            fs.writeFileSync
+                (path + file, newContent);
+            console.log('Inserted emojis into ' + file);
+        }
+    }
+}
+
 async function main() {
     await deleteAndRecreateRepoTemp();
     let repoFolders = [];
@@ -178,13 +207,21 @@ async function main() {
             }
         }
     }
+
+    let emojis = JSON.parse(fs.readFileSync('emojiList.json', 'utf-8'));
+    // sort emojis by descending length (by key) so we can replace longer emojis first
+    emojis = Object.fromEntries(Object.entries(emojis).sort((a, b) => b[0].length - a[0].length));
+    for (const configData of configs) {
+        insertEmojis(emojis, repoTempFolder + configData.folder + configData.dataFolder);
+    }
+
     // terms = detectDefinedTerms();
     // sort terms by descending length (by key) so we can replace longer terms first
     terms = Object.fromEntries(Object.entries(terms).sort((a, b) => b[0].length - a[0].length));
     console.log(terms);
     for (const configData of configs) {
         if (configData.buckets.includes('docs') || configData.buckets.includes('terms')) {
-            insertTermHyperlinks(terms, repoTempFolder + configData.folder + configData.dataFolder, "/" + configData.routeBasePath + "/")
+            insertTermHyperlinks(terms, repoTempFolder + configData.folder + configData.dataFolder, "/" + configData.routeBasePath + "/");
         }
     }
     // insertTermHyperlinks(terms);
