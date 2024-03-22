@@ -11,7 +11,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Standardization',
-    Svg: require('@site/static/img/puzzle_pieces.svg').default,
+    Svg: require('@site/static/img/puzzle pieces.svg').default,
     description: (
       <>
         We establish standards for logic creations, promoting compatibility across different designs. Our standards include clear documentation and examples.
