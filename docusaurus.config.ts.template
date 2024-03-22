@@ -39,24 +39,7 @@ const config: Config = {
   ],
 
   plugins: [
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'terminology',
-        path: 'repoTemp/SMLC-Terminology/terminology',
-        routeBasePath: 'terminology',
-        sidebarPath: require.resolve('./sidebars.js'),
-      },
-    ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'standards',
-        path: 'repoTemp/SMLC-Standards/standards',
-        routeBasePath: 'standards',
-        sidebarPath: require.resolve('./sidebars.js'),
-      },
-    ],
+    __dataFolderInsert__
     [
       'docusaurus-lunr-search',
       {

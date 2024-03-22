@@ -2,11 +2,8 @@ const fs = require('fs');
 const child_process = require('child_process');
 
 const repoTempFolder = 'repoTemp/';
-const gitRepos = [
-    'https://github.com/Scrap-Mechanic-Logic-Consortium/SMLC-Standards.git',
-    'https://github.com/Scrap-Mechanic-Logic-Consortium/SMLC-Terminology.git',
-    // Add more repositories here if needed
-];
+// read gitRepos.json
+const gitRepos = JSON.parse(fs.readFileSync('gitRepos.json', 'utf-8'));
 
 async function deleteAndRecreateRepoTemp() {
     try {
@@ -20,16 +17,23 @@ async function deleteAndRecreateRepoTemp() {
     }
 }
 
-async function cloneRepo(repoUrl) {
+async function cloneRepo(repoDef, targetFolder) {
+    // {
+    //     "repo": "https://github.com/Scrap-Mechanic-Logic-Consortium/SMLC-Standards.git",
+    //     "branch": "main",
+    //     "commit": "0166435"
+    // },
     try {
-        child_process.execSync(`git clone ${repoUrl}`, { cwd: repoTempFolder });
-        console.log(`Repository cloned: ${repoUrl}`);
+        child_process.execSync(`git clone ${repoDef.repo} ${repoTempFolder + targetFolder}`);
+        child_process.execSync(`git -C ${repoTempFolder + repoDef.folder} checkout ${repoDef.branch}`);
+        child_process.execSync(`git -C ${repoTempFolder + repoDef.folder} checkout ${repoDef.commit}`);
+        console.log(`Repository cloned: ${repoDef.repo} branch: ${repoDef.branch} commit: ${repoDef.commit}`);
     } catch (error) {
-        console.error(`Error cloning ${repoUrl}`, error);
+        console.error(`Error cloning ${repoDef.repo} branch: ${repoDef.branch} commit: ${repoDef.commit}`, error);
     }
 }
 
-function detectDefinedTerms(path = repoTempFolder + 'SMLC-Terminology/terminology/', folder = '/terminology/') {
+function detectDefinedTerms(path, sitePath) {
     const files = fs.readdirSync(path);
     terms = {};
     for (const file of files) {
@@ -37,7 +41,7 @@ function detectDefinedTerms(path = repoTempFolder + 'SMLC-Terminology/terminolog
             // check if file is a folder
             if (fs.lstatSync(path +
                 file).isDirectory()) {
-                const childTerms = detectDefinedTerms(path + file + '/', folder + file + '/');
+                const childTerms = detectDefinedTerms(path + file + '/', sitePath + file + '/');
                 for (const term in childTerms) {
                     terms[term] = childTerms[term];
                 }
@@ -57,7 +61,7 @@ function detectDefinedTerms(path = repoTempFolder + 'SMLC-Terminology/terminolog
                 // remove the file extension from the link name
                 const linkName = file.split('.')[0];
                 terms[segments[i].toLocaleLowerCase()] = {
-                    file: folder + linkName,
+                    file: sitePath + linkName,
                     excerpt: null,
                 }
             }
@@ -84,7 +88,7 @@ function detectDefinedTerms(path = repoTempFolder + 'SMLC-Terminology/terminolog
     return terms;
 }
 
-function insertTermHyperlinks(terms, path = repoTempFolder + 'SMLC-Standards/standards/', folder = '/standards/') {
+function insertTermHyperlinks(terms, path, sitePath) {
     const files = fs.readdirSync(path);
     console.log(files);
     for (const file of files) {
@@ -92,7 +96,7 @@ function insertTermHyperlinks(terms, path = repoTempFolder + 'SMLC-Standards/sta
             // check if file is a folder
             if (fs.lstatSync(path +
                 file).isDirectory()) {
-                insertTermHyperlinks(terms, path + file + '/', folder + file + '/');
+                insertTermHyperlinks(terms, path + file + '/', sitePath + file + '/');
             }
             continue;
         }
@@ -125,15 +129,52 @@ function insertTermHyperlinks(terms, path = repoTempFolder + 'SMLC-Standards/sta
 }
 async function main() {
     await deleteAndRecreateRepoTemp();
-
-    for (const repoUrl of gitRepos) {
-        await cloneRepo(repoUrl);
+    let repoFolders = [];
+    for (const repoDef of gitRepos) {
+        await cloneRepo(repoDef, repoFolders.length + '/');
+        repoFolders.push(repoFolders.length + '/')
     }
-    let terms = detectDefinedTerms();
+    configs = [];
+    let terms = {};
+    for (const folder of repoFolders) {
+        const configData = JSON.parse(fs.readFileSync(repoTempFolder + folder + "config.json", 'utf-8'))
+        configs.push(
+            {
+                ...configData,
+                folder: folder
+            }
+        )
+    }
+    for (const configData of configs) {
+        if (configData.buckets.includes('terms')) {
+            // add detectDefinedTerms to terms
+            terms = {
+                ...terms,
+                ...detectDefinedTerms(repoTempFolder + configData.folder + configData.dataFolder, "/" + configData.routeBasePath + "/")
+            }
+        }
+    }
+    // terms = detectDefinedTerms();
     // sort terms by descending length (by key) so we can replace longer terms first
     terms = Object.fromEntries(Object.entries(terms).sort((a, b) => b[0].length - a[0].length));
     console.log(terms);
-    insertTermHyperlinks(terms);
+    for (const configData of configs) {
+        if (configData.buckets.includes('docs')) {
+            insertTermHyperlinks(terms, repoTempFolder + configData.folder + configData.dataFolder, "/" + configData.routeBasePath + "/")
+        }
+    }
+    // insertTermHyperlinks(terms);
+    const docusaurusConfigTemplate = fs.readFileSync('docusaurus.config.ts.template', 'utf-8');
+    let inserts = [];
+    for (const configData of configs) {
+        //replace / in routeBasePath with _ to make it a valid id
+        let id = configData.routeBasePath.replace(/\//g, '_');
+        inserts.push(
+            "['@docusaurus/plugin-content-docs',{\"id\":\"" + id + "\",\"path\":\"" + repoTempFolder + configData.folder + configData.dataFolder + "\",\"routeBasePath\":\"" + configData.routeBasePath + "\", sidebarPath: require.resolve('./sidebars.js')}],"
+        );
+    }
+    // replace __dataFolderInsert__ with the inserts
+    let docusaurusConfig = docusaurusConfigTemplate.replace('__dataFolderInsert__', inserts.join(''));
+    fs.writeFileSync('docusaurus.config.ts', docusaurusConfig);
 }
-
 main();

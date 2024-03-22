@@ -1,0 +1,12 @@
+[
+    {
+        "repo": "https://github.com/Scrap-Mechanic-Logic-Consortium/SMLC-Standards.git",
+        "branch": "main",
+        "commit": "e67f5aa"
+    },
+    {
+        "repo": "https://github.com/Scrap-Mechanic-Logic-Consortium/SMLC-Terminology.git",
+        "branch": "main",
+        "commit": "ee69a15"
+    }
+]
