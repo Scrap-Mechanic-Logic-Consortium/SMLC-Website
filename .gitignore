@@ -20,3 +20,5 @@ yarn-debug.log*
 yarn-error.log*
 
 /repoTemp
+
+docusaurus.config.ts
