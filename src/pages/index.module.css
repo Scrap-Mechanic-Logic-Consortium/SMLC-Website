@@ -4,10 +4,24 @@
  */
 
 .heroBanner {
-  padding: 4rem 0;
+  padding: 10rem 0;
   text-align: center;
   position: relative;
   overflow: hidden;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2)),
+    url('/img/banner-wide-day.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 1);
+}
+
+/* when in dark mode */
+[data-theme='dark'] .heroBanner {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+    url('/img/banner-wide-night.jpg');
+  color: white;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 1);
 }
 
 @media screen and (max-width: 996px) {

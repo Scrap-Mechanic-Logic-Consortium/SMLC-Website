@@ -11,7 +11,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Standardization',
-    Svg: require('@site/static/img/puzzle pieces.svg').default,
+    Svg: require('@site/static/img/puzzle pieces line.svg').default,
     description: (
       <>
         We establish standards for logic creations, promoting compatibility across different designs. Our standards include clear documentation and examples.
@@ -20,7 +20,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Compilation',
-    Svg: require('@site/static/img/clipboard.svg').default,
+    Svg: require('@site/static/img/clipboard line.svg').default,
     description: (
       <>
         We compile a searchable database of standard-compliant logic creations, providing clear definitions for common terms to aid in discovery.
@@ -29,7 +29,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Evaluation',
-    Svg: require('@site/static/img/stopwatch.svg').default,
+    Svg: require('@site/static/img/stopwatch line.svg').default,
     description: (
       <>
         We provide independent testing and evaluation of logic creations (speed, size, etc.). Our tools and instructions empower everyone to verify our results.

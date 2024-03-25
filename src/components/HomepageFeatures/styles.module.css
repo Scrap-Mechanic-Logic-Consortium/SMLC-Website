@@ -9,3 +9,8 @@
   height: 200px;
   width: 200px;
 }
+
+[data-theme='dark'] .featureSvg {
+  /* apply filter to turn the svg from black to white */
+  filter: invert(1);
+}

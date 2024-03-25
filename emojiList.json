@@ -1,6 +1,12 @@
 {
     "bearing": "<img src='/img/bearing.png' alt='Bearing' style={{width: '1em', height: '1em', display: 'inline-block', verticalAlign: '-0.1em'}}/>",
+    "grass": "<img src='/img/grassblock.png' alt='Grass' style={{height: '1em', display: 'inline-block', verticalAlign: '-0.1em'}}/>",
+    "grassblock": "<img src='/img/grassblock.png' alt='Grass' style={{height: '1em', display: 'inline-block', verticalAlign: '-0.1em'}}/>",
     "dartboard": "🎯",
     "darts": "🎯",
-    "bullseye": "🎯"
+    "bullseye": "🎯",
+    "videogame": "🎮",
+    "game": "🎮",
+    "controller": "🎮",
+    "video-game": "🎮"
 }
