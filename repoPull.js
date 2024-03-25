@@ -135,7 +135,7 @@ function insertTermHyperlinks(terms, path, sitePath) {
                     if (accumulator.toLocaleLowerCase().endsWith(term)) {
                         const termWithCase = accumulator.slice(-term.length);
                         const link = `[${termWithCase}](${terms[term].file})`;
-                        newContent += content.slice(0, i - term.length) + link;
+                        newContent += content.slice(0, i - term.length + 1) + link;
                         content = content.slice(i);
                         i = 0;
                         accumulator = "";
